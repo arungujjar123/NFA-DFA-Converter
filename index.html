@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Interactive NFA to DFA Converter using Subset Construction Algorithm. Visualize automata, see step-by-step conversion, and test strings." />
+  <title>NFA → DFA Converter | Subset Construction Simulator</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+
+  <!-- vis.js for graph visualization -->
+  <link href="https://unpkg.com/vis-network@9.1.6/dist/dist/vis-network.min.css" rel="stylesheet" />
+  <script src="https://unpkg.com/vis-network@9.1.6/dist/vis-network.min.js"></script>
+
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- ===== Floating Background Blobs ===== -->
+  <div class="bg-blob blob-1"></div>
+  <div class="bg-blob blob-2"></div>
+  <div class="bg-blob blob-3"></div>
+
+  <!-- ===== Header ===== -->
+  <header id="app-header">
+    <div class="header-inner">
+      <div class="logo">
+        <span class="logo-icon">⚙</span>
+        <div>
+          <h1>NFA → DFA Converter</h1>
+          <p class="subtitle">Subset Construction Algorithm Simulator</p>
+        </div>
+      </div>
+      <nav class="header-nav">
+        <a href="#input-section" class="nav-link">Input</a>
+        <a href="#steps-section" class="nav-link">Steps</a>
+        <a href="#result-section" class="nav-link">Result</a>
+        <a href="#graph-section" class="nav-link">Graph</a>
+        <a href="#test-section" class="nav-link">Test</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="app-main">
+
+    <!-- ===== Algorithm Explanation Banner ===== -->
+    <section class="algo-banner" id="algo-banner">
+      <div class="card glass-card">
+        <div class="card-header">
+          <span class="card-icon">📖</span>
+          <h2>About the Algorithm</h2>
+          <button class="btn btn-ghost btn-sm" id="toggle-algo-btn" aria-label="Toggle explanation">▼</button>
+        </div>
+        <div class="algo-body" id="algo-body">
+          <p>The <strong>Subset Construction Algorithm</strong> (also called the <em>Powerset Construction</em>) converts any Non-Deterministic Finite Automaton (NFA) into an equivalent Deterministic Finite Automaton (DFA).</p>
+          <div class="algo-steps-grid">
+            <div class="algo-step-card">
+              <span class="step-num">1</span>
+              <h3>ε-Closure</h3>
+              <p>Compute the set of all states reachable from a given state using only epsilon (ε) transitions.</p>
+            </div>
+            <div class="algo-step-card">
+              <span class="step-num">2</span>
+              <h3>Move</h3>
+              <p>For a set of NFA states and an input symbol, find all states reachable via that symbol.</p>
+            </div>
+            <div class="algo-step-card">
+              <span class="step-num">3</span>
+              <h3>Subset Construction</h3>
+              <p>Starting from ε-closure of the start state, iteratively apply Move + ε-Closure for each symbol to discover all DFA states.</p>
+            </div>
+            <div class="algo-step-card">
+              <span class="step-num">4</span>
+              <h3>Mark Finals</h3>
+              <p>Any DFA state (a set of NFA states) that contains at least one NFA final state becomes a DFA final state.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== NFA Input Section ===== -->
+    <section class="section" id="input-section">
+      <div class="card glass-card">
+        <div class="card-header">
+          <span class="card-icon">✏️</span>
+          <h2>Define Your NFA</h2>
+        </div>
+
+        <div class="input-grid">
+          <!-- States -->
+          <div class="form-group">
+            <label for="input-states">States <span class="hint">(comma-separated)</span></label>
+            <input type="text" id="input-states" placeholder="e.g.  q0, q1, q2" autocomplete="off" />
+          </div>
+
+          <!-- Alphabets -->
+          <div class="form-group">
+            <label for="input-alphabets">Alphabets <span class="hint">(comma-separated, no ε)</span></label>
+            <input type="text" id="input-alphabets" placeholder="e.g.  a, b" autocomplete="off" />
+          </div>
+
+          <!-- Start State -->
+          <div class="form-group">
+            <label for="input-start">Start State</label>
+            <input type="text" id="input-start" placeholder="e.g.  q0" autocomplete="off" />
+          </div>
+
+          <!-- Final States -->
+          <div class="form-group">
+            <label for="input-finals">Final / Accept States <span class="hint">(comma-separated)</span></label>
+            <input type="text" id="input-finals" placeholder="e.g.  q2" autocomplete="off" />
+          </div>
+        </div>
+
+        <!-- Transitions -->
+        <div class="form-group transitions-group">
+          <label>Transitions <span class="hint">(one per line: <code>fromState, symbol, toState</code>  — use <code>eps</code> or <code>ε</code> for epsilon)</span></label>
+          <textarea id="input-transitions" rows="8" placeholder="q0, a, q0&#10;q0, a, q1&#10;q0, eps, q1&#10;q1, b, q2"></textarea>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="btn-row">
+          <button class="btn btn-primary" id="btn-convert" title="Convert NFA to DFA">
+            <span class="btn-icon">⚡</span> Convert to DFA
+          </button>
+          <button class="btn btn-secondary" id="btn-example" title="Load a sample NFA">
+            <span class="btn-icon">📦</span> Load Example
+          </button>
+          <button class="btn btn-outline" id="btn-clear" title="Clear all inputs">
+            <span class="btn-icon">🗑</span> Clear
+          </button>
+        </div>
+
+        <!-- Error Display -->
+        <div class="error-box hidden" id="error-box"></div>
+      </div>
+    </section>
+
+    <!-- ===== Conversion Steps Section ===== -->
+    <section class="section hidden" id="steps-section">
+      <div class="card glass-card">
+        <div class="card-header">
+          <span class="card-icon">🔄</span>
+          <h2>Conversion Steps</h2>
+          <div class="step-controls">
+            <button class="btn btn-sm btn-outline" id="btn-prev-step" disabled>← Prev</button>
+            <span class="step-counter" id="step-counter">Step 0 / 0</span>
+            <button class="btn btn-sm btn-outline" id="btn-next-step" disabled>Next →</button>
+            <button class="btn btn-sm btn-secondary" id="btn-show-all-steps">Show All</button>
+          </div>
+        </div>
+        <div id="steps-container" class="steps-container"></div>
+      </div>
+    </section>
+
+    <!-- ===== DFA Result Section ===== -->
+    <section class="section hidden" id="result-section">
+      <div class="card glass-card">
+        <div class="card-header">
+          <span class="card-icon">✅</span>
+          <h2>Resulting DFA</h2>
+        </div>
+
+        <div class="result-meta" id="result-meta"></div>
+        <div class="table-wrapper" id="dfa-table-wrapper"></div>
+      </div>
+    </section>
+
+    <!-- ===== Graph Visualization Section ===== -->
+    <section class="section hidden" id="graph-section">
+      <div class="card glass-card">
+        <div class="card-header">
+          <span class="card-icon">🕸</span>
+          <h2>Graph Visualization</h2>
+          <div class="graph-toggle-btns">
+            <button class="btn btn-sm btn-secondary active" id="btn-show-nfa-graph">NFA</button>
+            <button class="btn btn-sm btn-outline" id="btn-show-dfa-graph">DFA</button>
+          </div>
+        </div>
+        <div id="graph-container" class="graph-container"></div>
+      </div>
+    </section>
+
+    <!-- ===== String Testing Section ===== -->
+    <section class="section hidden" id="test-section">
+      <div class="card glass-card">
+        <div class="card-header">
+          <span class="card-icon">🧪</span>
+          <h2>Test a String</h2>
+        </div>
+
+        <div class="test-input-row">
+          <input type="text" id="input-test-string" placeholder='Enter a string to test  (e.g.  "aab")' autocomplete="off" />
+          <button class="btn btn-primary" id="btn-test-string">
+            <span class="btn-icon">▶</span> Test String
+          </button>
+        </div>
+
+        <div id="test-result" class="test-result hidden"></div>
+        <div id="test-trace" class="test-trace hidden"></div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ===== Footer ===== -->
+  <footer id="app-footer">
+    <p>NFA → DFA Converter &mdash; Theory of Computation Project</p>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
