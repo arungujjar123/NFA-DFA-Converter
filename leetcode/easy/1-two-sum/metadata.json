@@ -1,0 +1,23 @@
+{
+  "title": "Two Sum",
+  "titleSlug": "two-sum",
+  "frontendQuestionId": "1",
+  "leetcodeUrl": "https://leetcode.com/problems/two-sum/",
+  "difficulty": "Easy",
+  "topics": [
+    "Array",
+    "Hash Table"
+  ],
+  "language": "Unknown",
+  "verdict": "Accepted",
+  "submissionId": null,
+  "submittedAt": "2026-11-17T17:30:53.394Z",
+  "runtimeMs": null,
+  "memoryKb": null,
+  "totalCorrect": null,
+  "totalTestcases": null,
+  "helpType": "PENDING_SELF_REPORT",
+  "helpLabel": "Pending self report",
+  "focusSeconds": null,
+  "syncedAt": "2026-11-17T17:30:55.270Z"
+}
