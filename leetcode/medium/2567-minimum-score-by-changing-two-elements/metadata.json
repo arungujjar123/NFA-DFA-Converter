@@ -1,0 +1,24 @@
+{
+  "title": "Minimum Score by Changing Two Elements",
+  "titleSlug": "minimum-score-by-changing-two-elements",
+  "frontendQuestionId": "2567",
+  "leetcodeUrl": "https://leetcode.com/problems/minimum-score-by-changing-two-elements/",
+  "difficulty": "Medium",
+  "topics": [
+    "Array",
+    "Greedy",
+    "Sorting"
+  ],
+  "language": "Unknown",
+  "verdict": "Accepted",
+  "submissionId": null,
+  "submittedAt": "2026-11-19T16:50:37.646Z",
+  "runtimeMs": null,
+  "memoryKb": null,
+  "totalCorrect": null,
+  "totalTestcases": null,
+  "helpType": "PENDING_SELF_REPORT",
+  "helpLabel": "Pending self report",
+  "focusSeconds": null,
+  "syncedAt": "2026-11-19T16:50:57.138Z"
+}
